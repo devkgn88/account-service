@@ -1,3 +1,7 @@
+application-secret.properties
+src/main/my-front/node_modules/**
+src/main/my-front/build/**
+
 HELP.md
 .gradle
 build/
