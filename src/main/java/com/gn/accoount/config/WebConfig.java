@@ -1,4 +1,4 @@
-package com.gn.accoount.config.jwt;
+package com.gn.accoount.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

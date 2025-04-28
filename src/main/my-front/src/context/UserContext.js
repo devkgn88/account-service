@@ -15,11 +15,13 @@ function userReducer(state, action) {
   }
 }
 
-function UserProvider({ children }) {
-  var [state, dispatch] = React.useReducer(userReducer, {
+
+// isAuthenticated : 전역 상태 관리
+function UserProvider ({children}){
+  const [state, dispatch] = React.useReducer(userReducer, {
     isAuthenticated: !!localStorage.getItem("id_token"),
   });
-
+  
   return (
     <UserStateContext.Provider value={state}>
       <UserDispatchContext.Provider value={dispatch}>
@@ -27,7 +29,9 @@ function UserProvider({ children }) {
       </UserDispatchContext.Provider>
     </UserStateContext.Provider>
   );
+
 }
+
 
 function useUserState() {
   var context = React.useContext(UserStateContext);
@@ -49,25 +53,45 @@ export { UserProvider, useUserState, useUserDispatch, loginUser, signOut };
 
 // ###########################################################
 
-function loginUser(dispatch, login, password, history, setIsLoading, setError) {
+function loginUser(dispatch, login, password, history, setIsLoading, setError){
   setError(false);
   setIsLoading(true);
-
+  
+  // 아이디와 비밀번호가 모두 입력된 경우
   if (!!login && !!password) {
-    setTimeout(() => {
-      localStorage.setItem("id_token", "1");
-      dispatch({ type: "LOGIN_SUCCESS" });
-      setError(null);
-      setIsLoading(false);
+    fetch("http://localhost:8081/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: login, 
+        password: password,
+      }),
+    })
+      .then(async response => {
+        if (!response.ok) {
+          throw new Error("로그인 실패");
+        }
+        const data = await response.json();
+        localStorage.setItem("id_token", data.token);
+        dispatch({ type: "LOGIN_SUCCESS" });
+        setError(null);
+        setIsLoading(false);
+        history.push("/app/dashboard");
+      })
+      .catch(error => {
+        setError(true);
+        setIsLoading(false);
+      });
 
-      history.push("/app/dashboard");
-    }, 2000);
+    // 둘중에 하나라도 입력되지 않은 경우
   } else {
-    dispatch({ type: "LOGIN_FAILURE" });
     setError(true);
     setIsLoading(false);
   }
 }
+
 
 function signOut(dispatch, history) {
   localStorage.removeItem("id_token");
