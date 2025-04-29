@@ -19,7 +19,7 @@ function userReducer(state, action) {
 // isAuthenticated : 전역 상태 관리
 function UserProvider ({children}){
   const [state, dispatch] = React.useReducer(userReducer, {
-    isAuthenticated: !!localStorage.getItem("id_token"),
+    isAuthenticated: !!localStorage.getItem("access_token"),
   });
   
   return (
@@ -74,13 +74,18 @@ function loginUser(dispatch, login, password, history, setIsLoading, setError){
           throw new Error("로그인 실패");
         }
         const data = await response.json();
-        localStorage.setItem("id_token", data.token);
+
+        localStorage.setItem("access_token",data.accessToken);
+        localStorage.setItem("refresh_token",data.refreshToken);
         dispatch({ type: "LOGIN_SUCCESS" });
+
+
         setError(null);
         setIsLoading(false);
         history.push("/app/dashboard");
       })
       .catch(error => {
+        console.error("로그인 에러 : ",error);
         setError(true);
         setIsLoading(false);
       });
@@ -94,7 +99,8 @@ function loginUser(dispatch, login, password, history, setIsLoading, setError){
 
 
 function signOut(dispatch, history) {
-  localStorage.removeItem("id_token");
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
   dispatch({ type: "SIGN_OUT_SUCCESS" });
   history.push("/login");
 }

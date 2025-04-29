@@ -24,7 +24,7 @@ public class AccountService {
 		
 		String username = loginRequest.getUsername();
         String password = loginRequest.getPassword();
-		
+        
 		// 1. id와 pw를 기반으로 Authentication 객체 생성
 		// Authentication이 생성되는 순간에는 인증 여부 false
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
