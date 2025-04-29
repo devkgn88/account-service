@@ -33,7 +33,7 @@ import {
   useLayoutDispatch,
   toggleSidebar,
 } from "../../context/LayoutContext";
-import { useUserDispatch, signOut } from "../../context/UserContext";
+import { useUserDispatch, signOut, getUserInfo } from "../../context/UserContext";
 
 const messages = [
   {
@@ -303,8 +303,9 @@ export default function Header(props) {
               classes.profileMenuItem,
               classes.headerMenuItem,
             )}
+            onClick={getUserInfo}
           >
-            <AccountIcon className={classes.profileMenuIcon} /> Profile
+            <AccountIcon className={classes.profileMenuIcon}/> Profile
           </MenuItem>
           <MenuItem
             className={classNames(
