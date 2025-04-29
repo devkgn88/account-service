@@ -31,39 +31,46 @@ public class JwtTokenProvider {
 	
     private final Key key;
     private Logger log 
-	= LoggerFactory.getLogger(JwtTokenProvider.class);
+		= LoggerFactory.getLogger(JwtTokenProvider.class);
+    
+
         
     public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
     
-    // AccessToken, RefreshToken 생성
-    public JwtTokenInfo generateToken(Authentication authentication) {
-    	
-    	// 권한 생성
-    	String authorities = authentication.getAuthorities().stream()
+    // AccessToken 생성
+    public String createAccessToken(Authentication authentication) {
+        String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
-    	
-    	// 지금 시간 정보
-    	long now = (new Date()).getTime();
-    	
-    	// AccessToken 생성
-    	// 1초(1000) * 60초 * 60분 = 1시간
-    	Date accessTokenExpiresIn = new Date(now + 3600000);
-        String accessToken = Jwts.builder()
-                .setSubject(authentication.getName())
-                .claim("auth", authorities)
+
+        long now = (new Date()).getTime();
+        Date accessTokenExpiresIn = new Date(now + 1000 * 60 * 60); // 1시간
+
+        return Jwts.builder()
+                .setSubject(authentication.getName()) // 사용자 ID
+                .claim("auth", authorities) // 권한 정보 저장
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
-        
-        // Refresh Token 생성
-        String refreshToken = Jwts.builder()
-                .setExpiration(new Date(now + 86400000))
+    }
+    
+    // RefreshToken 생성
+    public String createRefreshToken() {
+        long now = (new Date()).getTime();
+        Date refreshTokenExpiresIn = new Date(now + 1000 * 60 * 60 * 24); // 1일
+        return Jwts.builder()
+                .setExpiration(refreshTokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+    }
+    
+    // 로그인 성공 시 AccessToken과 RefreshToken을 둘 다 생성하고, 반환할 때 사용
+    public JwtTokenInfo generateToken(Authentication authentication) {
+        String accessToken = createAccessToken(authentication);
+        String refreshToken = createRefreshToken();
         
         return JwtTokenInfo.builder()
                 .grantType("Bearer")
