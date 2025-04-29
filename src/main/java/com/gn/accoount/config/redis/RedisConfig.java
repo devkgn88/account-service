@@ -17,8 +17,8 @@ public class RedisConfig {
 	}
 	
 	@Bean
-	RedisTemplate<String, String> redisTemplate(){
-		RedisTemplate<String,String> redisTemplate = new RedisTemplate<String,String>();
+	RedisTemplate<String, Object> redisTemplate(){
+		RedisTemplate<String,Object> redisTemplate = new RedisTemplate<String,Object>();
 		redisTemplate.setConnectionFactory(connectionFactory());
 		
 		// key, value 모두 문자열로 저장

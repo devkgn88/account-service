@@ -1,5 +1,6 @@
 package com.gn.accoount.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -9,20 +10,31 @@ import com.gn.accoount.config.jwt.JwtTokenInfo;
 import com.gn.accoount.request.LoginRequest;
 import com.gn.accoount.service.AccountService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
-@RestController
+@RestController("/api")
 @RequiredArgsConstructor
 public class AuthController {
 	
 	private final AccountService accountService;
 		
-	@PostMapping("/api/login")
+	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-        JwtTokenInfo tokenInfo = accountService.login(loginRequest);
-        return ResponseEntity.ok(tokenInfo);
-                
+        JwtTokenInfo tokenInfo = accountService.login(loginRequest, response);
+        System.out.println(tokenInfo);
+        return ResponseEntity.ok(tokenInfo);      
+	}
+	
+	@PostMapping("/refresh")
+	public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response){
+		JwtTokenInfo tokenInfo = accountService.refreshToken(request, response);
+		if(tokenInfo == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
+		}else {
+			return ResponseEntity.ok(tokenInfo);		
+		}
 	}
 
 }

@@ -49,7 +49,7 @@ function useUserDispatch() {
   return context;
 }
 
-export { UserProvider, useUserState, useUserDispatch, loginUser, signOut };
+export { UserProvider, useUserState, useUserDispatch, loginUser, signOut, getUserInfo };
 
 // ###########################################################
 
@@ -68,6 +68,7 @@ function loginUser(dispatch, login, password, history, setIsLoading, setError){
         username: login, 
         password: password,
       }),
+      credentials: "include",
     })
       .then(async response => {
         if (!response.ok) {
@@ -76,9 +77,7 @@ function loginUser(dispatch, login, password, history, setIsLoading, setError){
         const data = await response.json();
 
         localStorage.setItem("access_token",data.accessToken);
-        localStorage.setItem("refresh_token",data.refreshToken);
         dispatch({ type: "LOGIN_SUCCESS" });
-
 
         setError(null);
         setIsLoading(false);
@@ -100,7 +99,76 @@ function loginUser(dispatch, login, password, history, setIsLoading, setError){
 
 function signOut(dispatch, history) {
   localStorage.removeItem("access_token");
-  localStorage.removeItem("refresh_token");
   dispatch({ type: "SIGN_OUT_SUCCESS" });
   history.push("/login");
+}
+
+// fetch로 사용하던 코드를 fetchWithAuth 사용하기
+async function fetchWithAuth(url, options={}){
+  const token = localStorage.getItem('access_token');
+
+  const authOptions = {
+    ...options,
+    headers:{
+      ...(options.headers || {}),
+      Authorization: `Bearer ${token}`,
+    },
+    credentials: "include",
+  };
+
+  let response = await fetch(url, authOptions);
+
+  if(response.status === 401){
+    // accessToken 만료시 : refresh 시도
+    const newAccessToken = await refreshAccessToken();
+    if(newAccessToken){
+      localStorage.setItem("access_token",newAccessToken);
+
+      // 토큰 갱신 후 다시 요청
+      const retryOptions = {
+        ...options,
+        headers: {
+          ...(options.headers || {}),
+          Authorization: `Bearer ${newAccessToken}`,
+        },
+        credentials: "include",
+      };
+      response = await fetch(url, retryOptions);
+    } else{
+      // 재발급 실패 -> 로그아웃 시키기
+      localStorage.removeItem("access_token");
+      window.location.href="/login";
+    } 
+  }
+  return response;
+}
+
+// accessToken 재발급 함수
+async function refreshAccessToken(){
+  try{
+    const response = await fetch("http://localhost:8081/api/refresh",{
+      method:'POST',
+      credentials:"include", // 서버가 HttpOnly 쿠키 기반으로 설정할 수 있도록
+    });
+
+    if(!response.ok){
+      throw new Error("RefreshToken 재발급 실패");
+    }
+
+    const data = await response.json();
+    return data.accessToken;
+  }catch(error){
+    console.error("AccessToken 재발급 에러 : ",error);
+    return null;
+  }
+}
+
+async function getUserInfo() {
+  try {
+    const response = await fetchWithAuth("http://localhost:8081/api/profile");
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error("네트워크 오류 발생:", error);
+  }
 }

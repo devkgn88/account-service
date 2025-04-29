@@ -25,8 +25,10 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
 
 @Component
+@Getter
 public class JwtTokenProvider {
 	
     private final Key key;
@@ -38,6 +40,17 @@ public class JwtTokenProvider {
     public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
+    }
+    
+    // 문자열 정보만 전달하여 accessToken 반환받기 (오버로딩)
+    public String createAccessToken(String accountId) {
+    	long now = (new Date()).getTime();
+    	return Jwts.builder()
+                .setSubject(accountId)
+                .setIssuedAt(new Date(now))
+                .setExpiration(new Date(now + 1000 * 60 * 60))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
     }
     
     // AccessToken 생성
