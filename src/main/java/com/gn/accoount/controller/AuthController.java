@@ -5,26 +5,24 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.gn.accoount.config.jwt.JwtTokenInfo;
 import com.gn.accoount.request.LoginRequest;
-import com.gn.accoount.response.TokenResponse;
+import com.gn.accoount.service.AccountService;
 
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 @RestController
+@RequiredArgsConstructor
 public class AuthController {
 	
+	private final AccountService accountService;
+		
 	@PostMapping("/api/login")
 	public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-		String username = loginRequest.getUsername();
-        String password = loginRequest.getPassword();
-        
-        
-        
-        if ("testuser".equals(username) && "testpassword".equals(password)) {
-            return ResponseEntity.ok().body(new TokenResponse("1"));
-        } else {
-            return ResponseEntity.status(401).body("인증 오류");
-        }
+        JwtTokenInfo tokenInfo = accountService.login(loginRequest);
+        return ResponseEntity.ok(tokenInfo);
+                
 	}
 
 }
