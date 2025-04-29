@@ -14,20 +14,20 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
-@RestController("/api")
+@RestController
 @RequiredArgsConstructor
 public class AuthController {
 	
 	private final AccountService accountService;
 		
-	@PostMapping("/login")
+	@PostMapping("/api/login")
 	public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         JwtTokenInfo tokenInfo = accountService.login(loginRequest, response);
         System.out.println(tokenInfo);
         return ResponseEntity.ok(tokenInfo);      
 	}
 	
-	@PostMapping("/refresh")
+	@PostMapping("/api/refresh")
 	public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response){
 		JwtTokenInfo tokenInfo = accountService.refreshToken(request, response);
 		if(tokenInfo == null) {
