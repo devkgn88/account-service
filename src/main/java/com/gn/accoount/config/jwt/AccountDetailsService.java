@@ -19,7 +19,6 @@ public class AccountDetailsService implements UserDetailsService{
 	@Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 	 	Account entity = accountRepository.findByAccountId(username);
-	 	System.out.println(entity);
 	 	if(entity == null) {
 			throw new UsernameNotFoundException("존재하지 않는 회원입니다.");
 		} 

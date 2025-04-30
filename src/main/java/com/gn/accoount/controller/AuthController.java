@@ -23,7 +23,6 @@ public class AuthController {
 	@PostMapping("/api/login")
 	public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         JwtTokenInfo tokenInfo = accountService.login(loginRequest, response);
-        System.out.println(tokenInfo);
         return ResponseEntity.ok(tokenInfo);      
 	}
 	
