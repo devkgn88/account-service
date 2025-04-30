@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class AccountDetails implements UserDetails{
-	
 	private static final long serialVersionUID = 1L;
 	
 	private final Account account;

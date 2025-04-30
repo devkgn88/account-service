@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import com.gn.accoount.config.jwt.CookieUtils;
 import com.gn.accoount.config.jwt.JwtTokenInfo;
 import com.gn.accoount.config.jwt.JwtTokenProvider;
+import com.gn.accoount.domain.Account;
+import com.gn.accoount.repository.AccountRepository;
 import com.gn.accoount.request.LoginRequest;
 
 import io.jsonwebtoken.Jwts;
@@ -23,6 +25,7 @@ public class AccountService {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final RefreshTokenService refreshTokenService;
 	private final CookieUtils cookieUtils;
+	private final AccountRepository accountRepository;
 	
 	public JwtTokenInfo refreshToken(HttpServletRequest request, HttpServletResponse response) {
 		
@@ -90,6 +93,10 @@ public class AccountService {
 					.grantType("Bearer")
 					.accessToken(accessToken)
 					.build();
+	}
+	
+	public Account getProfile(String accountId) {
+		return accountRepository.findByAccountId(accountId);
 	}
 	
 

@@ -7,11 +7,16 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 	
+	private final JwtTokenProvider jwtTokenProvider;
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -20,8 +25,14 @@ public class SecurityConfig {
     		.authorizeHttpRequests(authorize -> authorize
                     .requestMatchers("/api/login","/api/refresh").permitAll()
                     .anyRequest().authenticated()
-            );
+            )
+    		.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+    
+    @Bean
+    JwtAuthenticationFilter jwtAuthenticationFilter() {
+    	return new JwtAuthenticationFilter(jwtTokenProvider);
     }
     
 	@Bean

@@ -1,6 +1,7 @@
 package com.gn.accoount.config.jwt;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,7 +31,8 @@ public class JwtAuthenticationFilter extends GenericFilterBean{
 	    String path = httpRequest.getServletPath();
 	    
 	    // 로그인과 토큰 재발급 요청은 JWT 필터를 타지 않고 바로 통과
-	    if (path.equals("/api/login") || path.equals("/api/refresh")) {
+	    List<String> excludedPaths = List.of("/api/login", "/api/refresh");
+	    if (excludedPaths.contains(path)) {
 	        chain.doFilter(request, response);
 	        return;
 	    }
@@ -49,7 +51,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean{
 
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer"))
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer "))
             return bearerToken.substring(7);
 
         return null;
