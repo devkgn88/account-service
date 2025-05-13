@@ -18,8 +18,8 @@ public class CorsConfig {
 		
 		// 리소스를 허용할 URL
 		ArrayList<String> allowedOriginPatterns = new ArrayList<String>();
-        allowedOriginPatterns.add("http://localhost:3000");
-        allowedOriginPatterns.add("http://127.0.0.1:3000");
+        allowedOriginPatterns.add("http://localhost:5173");
+        allowedOriginPatterns.add("http://127.0.0.1:5173");
         configuration.setAllowedOrigins(allowedOriginPatterns);
         
         // 리소스를 허용할 HTTP METHOD
