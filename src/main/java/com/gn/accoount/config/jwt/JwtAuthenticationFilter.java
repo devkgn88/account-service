@@ -31,7 +31,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean{
 	    String path = httpRequest.getServletPath();
 	    
 	    // 로그인과 토큰 재발급 요청은 JWT 필터를 타지 않고 바로 통과
-	    List<String> excludedPaths = List.of("/api/auth/login", "/api/refresh");
+	    List<String> excludedPaths = List.of("/api/auth/login", "/api/auth/refresh");
 	    if (excludedPaths.contains(path)) {
 	        chain.doFilter(request, response);
 	        return;

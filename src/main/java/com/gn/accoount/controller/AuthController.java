@@ -33,7 +33,7 @@ public class AuthController {
         return ResponseEntity.ok(tokenInfo);      
 	}
 	
-	@PostMapping("/api/refresh")
+	@PostMapping("/api/auth/refresh")
 	public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response){
 		JwtTokenInfo tokenInfo = accountService.refreshToken(request, response);
 		if(tokenInfo == null) {
